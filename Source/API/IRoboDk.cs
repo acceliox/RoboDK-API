@@ -870,7 +870,13 @@ public interface IRoboDK
     /// Returns the license string (as shown in the RoboDK main window)
     /// </summary>
     /// <returns>license string.</returns>
-    string GetLicense();
+    (string lic, string cid) GetLicense();
+
+    /// <summary>
+    /// Updates the license info
+    /// </summary>
+    /// <returns>license string. "Standalone2:" + pcid + ":" + key </returns>
+    bool UpdateLicense(string licenseCommand);
 
     /// <summary>
     /// Returns the list of items selected (it can be one or more items)

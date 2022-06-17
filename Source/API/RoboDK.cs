@@ -2500,7 +2500,7 @@ public class RoboDK : IRoboDK, IDisposable
     }
 
     /// <inheritdoc />
-    public string GetLicense()
+    public (string lic, string cid) GetLicense()
     {
         check_connection();
         var command = "G_License2";
@@ -2508,7 +2508,19 @@ public class RoboDK : IRoboDK, IDisposable
         var license = rec_line();
         var cid = rec_line();
         check_status();
-        return license;
+        return (license, cid);
+    }
+
+    /// <inheritdoc />
+    public bool UpdateLicense(string licenseCommand)
+    {
+        check_connection();
+        var command = "S_License";
+        send_line(command);
+        send_line(licenseCommand);
+        var status = rec_int();
+        check_status();
+        return status > 0;
     }
 
     /// <inheritdoc />
