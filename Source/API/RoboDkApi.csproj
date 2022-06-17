@@ -1,13 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>RoboDk.API</RootNamespace>
     <AssemblyName>RoboDk.API</AssemblyName>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <RepositoryUrl>https://github.com/acceliox/RoboDK-API.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>RoboDK Api</PackageTags>
+    <Description>API for communication with RoboDK</Description>
   </PropertyGroup>
 
   <ItemGroup>
