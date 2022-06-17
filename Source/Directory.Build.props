@@ -5,7 +5,7 @@
     <Owner>RoboDK</Owner>
     <Company>RoboDK</Company>
     <Copyright>Copyright © RoboDK 2022</Copyright>
-    <Version>6.0</Version>
+    <Version>6.1.0</Version>
     <FileVersion>$(Version)</FileVersion>
     <AssemblyVersion>$(Version)</AssemblyVersion>
   </PropertyGroup>
