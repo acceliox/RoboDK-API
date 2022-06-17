@@ -13,8 +13,4 @@
     <Description>API for communication with RoboDK</Description>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
-
 </Project>
