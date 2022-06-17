@@ -1,9 +1,5 @@
 ﻿//#define TEST_ROBODK_API
 
-#region Namespaces
-
-#endregion
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
