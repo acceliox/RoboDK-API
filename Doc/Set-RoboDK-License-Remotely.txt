@@ -1,0 +1,254 @@
+# This script allows setting the license on a remote PC or device
+
+# Set the distributor code:
+# Enter the IP or the hostname of the remote device
+hostname = None # "raspberrypi" # "bb-0d28"
+
+# Enter RoboDK distributor code
+DistCode = None # "ResellerTest-1234"
+
+if hostname is None:
+    hostname = input("Enter the device hostname or IP (example: raspberrypi or bb400-0d28):\n")
+
+print("")
+
+if DistCode is None:
+    DistCode = input("Enter your distributor code (example: ResellerTest-1234):\n")
+
+print("")
+#-------------------------------------------------------------------
+#-------------------------------------------------------------------
+#-------------------------------------------------------------------
+#-------------------------------------------------------------------
+
+from robolink import *    # RoboDK API
+from robodk import *      # Robot toolbox
+
+
+class Robolink_ext(Robolink):
+    def FactorySettings(self):
+        self._check_connection()
+        self._send_line('FactorySettings')
+        version = self._rec_line()
+        self._check_status()
+        return version
+    
+    def FileSet(self, path_local, path_remote = "", load_file=True, attach_to=0):      
+
+        # Close all stations if we are loading a new RDK file (important to clean RAM)
+        if path_local.lower().endswith(".rdk"):
+            stations = self.getOpenStations()
+            for s in stations:
+                s.Delete()
+
+        import os
+
+        file_size = os.path.getsize(path_local)        
+        self._check_connection()
+        self._send_line('FileRecvBin')
+        self._send_line(path_remote)
+        self._send_int(file_size)
+        self._send_item(attach_to)
+        self._send_int(1 if load_file else 0)        
+        self._check_status()
+        sz_sent = 0
+        with open(path_local,"rb") as f:
+            sRead = f.read(1024)
+            while sRead:
+                self.COM.send(sRead)
+                #print("Sent bytes: " + str(self.COM.send(sRead)))
+                sz_sent += len(sRead)
+                print("Sending file %s... (%.0f %%)" % (path_local, 100.0*sz_sent/file_size))                
+                sRead = f.read(1024)
+                #line = self._rec_line()
+                #print(line)
+                
+        # Here, we need to give time to the computer to load the file.
+        self.COM.settimeout(60)
+        linedone = self._rec_line()
+        self.COM.settimeout(self.TIMEOUT)   
+        print(linedone)
+        self.NewLink()
+        # At this point it will be disconnected!!
+        
+    def FileGet(self, path_file_local, station=0, path_file_remote=""):
+        self._check_connection()
+        self._send_line('FileSendBin')
+        self._send_item(station)
+        self._send_line(path_file_remote)
+        fsize = self._rec_int()
+        sz_remaining = fsize        
+        with open(path_file_local,"wb") as f:
+            buf_sz = 1024
+            while sz_remaining > 0:
+                print("Receiving file %s... (%.0f %%)" % (path_file_local, 100.0*(fsize-sz_remaining)/fsize))
+                sRecv = self.COM.recv(min(sz_remaining, buf_sz))
+                sz_remaining -= len(sRecv)
+                f.write(sRecv)                
+            f.close()
+                
+        self._check_status()
+        print("Receive file Completed")        
+        return True
+        
+    def FileSetRemote(self, ip_remote):
+        import tempfile
+        rdk_file = tempfile.gettempdir().replace("\\","/") + "/Temp-Station-Save.rdk"
+        print("Saving temporary file: " + rdk_file)
+        self.Save(rdk_file)
+        print("Saved")
+        rdk_rem = Robolink_ext(ip_remote)
+        rdk_rem.FileSet(rdk_file)
+        return rdk_rem
+        
+    def FileGetRemote(self, ip_remote):
+        import tempfile
+        rdk_file = tempfile.gettempdir().replace("\\","/") + "/Temp-Station-Load.rdk"        
+        rdk_rem = Robolink_ext(ip_remote)
+        rdk_rem.FileGet(rdk_file)
+        print("Loading temporary file: " + rdk_file)
+        self.AddFile(rdk_file)
+        return True
+       
+    def LicenseUpdate(self, license_command):
+        """Update the RoboDK license"""
+        self._check_connection()
+        command = 'S_License'
+        self._send_line(command)
+        self._send_line(license_command)
+        all_good = self._rec_int()
+        self._check_status()
+        return all_good > 0
+        
+    def LicenseInfo(self):
+        """Update the RoboDK license"""
+        self._check_connection()
+        command = 'G_License2'
+        self._send_line(command)        
+        licname = self._rec_line()
+        pcid = self._rec_line()
+        self._check_status()
+        return licname, pcid
+        
+        
+
+def test_get():
+    RDKlocal.FileGet(fname)
+    
+def test_set():
+    RDKlocal.FileSet(fname)
+   
+
+
+
+
+
+host_ip = hostname
+
+if not '.' in hostname or hostname.isalpha():
+    print("Getting host name IP: " + hostname)
+    import socket
+    host_ip = socket.gethostbyname(hostname)   
+    #host_ip = "192.168.2.147"
+    print("Found IP: " + host_ip)
+
+
+
+print("Connecting to the RoboDK API remotely...")
+RDK = Robolink_ext(host_ip)
+
+# Set default settings:
+RDK.FactorySettings()
+
+# Get remote license:
+name, pcid = RDK.LicenseInfo()
+print("License name: " + name)
+print("Computer ID: " + pcid)
+
+#---------------------------- GETTING KEY
+
+# importing the requests library 
+import requests 
+  
+# api-endpoint 
+URL = "https://robodk.com/lic2/Summa123ry.php"
+  
+  
+# defining a params dict for the parameters to be sent to the API 
+PARAMS = {} 
+PARAMS["DistCode"] = DistCode
+PARAMS["LicChoice"] = "Stdlone" # Request standalone license
+PARAMS["ComputerID"] = pcid
+PARAMS["Company"] = "TwinBox"
+PARAMS["EduPro"] = "1" # professional
+PARAMS["Type"] = "5" # full license
+
+  
+# sending get request and saving the response as response object 
+r = requests.get(url=URL, params=PARAMS) 
+if r.status_code != 200:
+    print(str(r.content))
+    print("Warning! Status code is not 200: " + str(r))
+
+content = r.content.decode("utf-8")
+print(content)
+msglist = content.split("##")
+
+# Iterate through RoboDK license server response
+key_set = False
+final_message = "Unknown status"
+for msg in msglist:
+    print(msg)
+    if msg.startswith("STANDALONEKEY="):
+        key = msg.split("=")[1]
+        # Calculate key string as a file (same as .rdklic file)
+        #pcid = "e0ef16548ac58ad3fa22a603fc46d78f"
+        #key = "3a0ece00b11b3d61498b7d86dc4cd4d96dfd43022f12baaed0f5ec2cba047dada6baa2ff2fc447617a40b09cf49b71b800b8dd2241b773b066d65cbea69f67cdfa22a603fc46d78f"
+        license_command = "Standalone2:" + pcid + ":" + key
+
+        # Update RoboDK license:
+        RDK.LicenseUpdate(license_command)
+
+        # Save the settings (in case of a RoboDK crash or PC reboot)
+        RDK.Command("Settings", "Save")
+
+        # Save the file on the remote device so the license setting becomes permanent:
+        # in case we loose default settings:
+        #  create a text file "license.rdklic" relative to the cwd with the same string
+        #  RoboDK is set so that it loads the license from license.rdklic if the file exists
+
+        #RDK.FileSet(localfile_path, "license.rdklic", load_file=False, attach_to=0)
+
+        key_set = True
+        
+    if msg.startswith("MESSAGE"):
+        final_message = msg.split("=")[1]
+
+if not key_set:
+    print("WARNING! Unable to save the key")
+
+# extracting data in json format 
+#data = r.json() 
+
+print("")
+print(final_message)
+
+quit()
+
+
+
+# Load the currently open file from the PC to the remote BlackBox
+RDKlocal = Robolink_ext()
+RDKlocal.FileSetRemote(host_ip)
+
+
+
+
+
+
+
+
+
+
+
+
