@@ -1,17 +1,4 @@
 ﻿// ----------------------------------------------------------------------------------------------------------
-// Copyright 2018 - RoboDK Inc. - https://robodk.com/
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-// http://www.apache.org/licenses/LICENSE-2.0
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-// ----------------------------------------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------------------------------------
 // This file (RoboDK.cs) implements the RoboDK API for C#
 // This file defines the following classes:
 //     Mat: Matrix class, useful pose operations
@@ -39,47 +26,43 @@
 // ----------------------------------------------------------------------------------------------------------
 
 
+namespace RoboDk.API.Model;
 
-namespace RoboDk.API.Model
+/// <summary>
+/// Type of information returned by InstructionListJoints and GetInstructionListJoints
+/// </summary>
+public enum ListJointsType
 {
     /// <summary>
-    /// Type of information returned by InstructionListJoints and GetInstructionListJoints
+    /// Same result as Position (fastest)
     /// </summary>
-    public enum ListJointsType
-    {
-        /// <summary>
-        /// Same result as Position (fastest)
-        /// </summary>
-        Any = 0,
+    Any = 0,
 
-        /// <summary>
-        /// Return the joints position. The returned columns are organized in the following way:
-        /// [J1, J2, ..., Jn, ERROR, MM_STEP, DEG_STEP, MOVE_ID]
-        /// </summary>
-        Position = 1,
+    /// <summary>
+    /// Return the joints position. The returned columns are organized in the following way:
+    /// [J1, J2, ..., Jn, ERROR, MM_STEP, DEG_STEP, MOVE_ID]
+    /// </summary>
+    Position = 1,
 
-        /// <summary>
-        /// Include the speed information (also includes the time). The returned columns are organized in the following way:
-        /// [J1, J2, ..., Jn, ERROR, MM_STEP, DEG_STEP, MOVE_ID,   TIME, X_TCP, Y_TCP, Z_TCP,  Speed_J1, Speed_J2, ..., Speed_Jn] 
-        /// </summary>
-        Speed = 2,
+    /// <summary>
+    /// Include the speed information (also includes the time). The returned columns are organized in the following way:
+    /// [J1, J2, ..., Jn, ERROR, MM_STEP, DEG_STEP, MOVE_ID,   TIME, X_TCP, Y_TCP, Z_TCP,  Speed_J1, Speed_J2, ..., Speed_Jn] 
+    /// </summary>
+    Speed = 2,
 
-        /// <summary>
-        /// Return the speed and acceleration information (also includes the time). The returned columns are organized in the following way:
-        /// [J1, J2, ..., Jn, ERROR, MM_STEP, DEG_STEP, MOVE_ID,   TIME, X_TCP, Y_TCP, Z_TCP,  Speed_J1, Speed_J2, ..., Speed_Jn,   Accel_J1, Accel_J2, ..., Accel_Jn]
-        /// </summary>
-        SpeedAndAcceleration = 3,
+    /// <summary>
+    /// Return the speed and acceleration information (also includes the time). The returned columns are organized in the following way:
+    /// [J1, J2, ..., Jn, ERROR, MM_STEP, DEG_STEP, MOVE_ID,   TIME, X_TCP, Y_TCP, Z_TCP,  Speed_J1, Speed_J2, ..., Speed_Jn,   Accel_J1, Accel_J2, ..., Accel_Jn]
+    /// </summary>
+    SpeedAndAcceleration = 3,
 
-        /// <summary>
-        /// Make the result time-based so that the interval between joint values is provided at constant time steps
-        /// </summary>
-        TimeBased = 4,
+    /// <summary>
+    /// Make the result time-based so that the interval between joint values is provided at constant time steps
+    /// </summary>
+    TimeBased = 4,
 
-        /// <summary>
-        /// Make the result time-based so that the interval between joint values is provided at constant time steps. Speed and acceleration data is ignored.
-        /// </summary>
-        TimeBasedPosition = 5
-    }
+    /// <summary>
+    /// Make the result time-based so that the interval between joint values is provided at constant time steps. Speed and acceleration data is ignored.
+    /// </summary>
+    TimeBasedPosition = 5
 }
-
-

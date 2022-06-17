@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("RoboDK")]
 [assembly: AssemblyProduct("RoboDkApi")]
-[assembly: AssemblyCopyright("Copyright © 2020 RoboDK Inc.")]
+[assembly: AssemblyCopyright("Copyright © 2022 RoboDK Inc.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

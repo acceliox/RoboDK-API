@@ -1,17 +1,4 @@
 ﻿// ----------------------------------------------------------------------------------------------------------
-// Copyright 2018 - RoboDK Inc. - https://robodk.com/
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-// http://www.apache.org/licenses/LICENSE-2.0
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-// ----------------------------------------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------------------------------------
 // This file (RoboDK.cs) implements the RoboDK API for C#
 // This file defines the following classes:
 //     Mat: Matrix class, useful pose operations
@@ -40,23 +27,20 @@
 
 using System;
 
+namespace RoboDk.API.Model;
 
-namespace RoboDk.API.Model
+// RoboDK Item Flags
+[Flags]
+public enum ItemFlags
 {
-    // RoboDK Item Flags
-    [Flags]
-    public enum ItemFlags
-    {
-        Selectable = 1,             // Allow selecting the item
-        Editable = 2,               // Allow editing the item
-        Dragallowed = 4,            // allow dragging the item
-        Dropallowed = 8,            // Allow dropping nested items
-        Enabled = 32,               // Enable this item in the tree
-        Autotristate = 64,          // TODO: DOCUMENTATION
-        Nochildren = 128,           // TODO: DOCUMENTATION
-        Usertristate = 256,         // TODO: DOCUMENTATION
-        None = 0,
-        All = Autotristate + Enabled + Dropallowed + Dragallowed + Editable + Selectable
-    }
+    Selectable = 1, // Allow selecting the item
+    Editable = 2, // Allow editing the item
+    Dragallowed = 4, // allow dragging the item
+    Dropallowed = 8, // Allow dropping nested items
+    Enabled = 32, // Enable this item in the tree
+    Autotristate = 64, // TODO: DOCUMENTATION
+    Nochildren = 128, // TODO: DOCUMENTATION
+    Usertristate = 256, // TODO: DOCUMENTATION
+    None = 0,
+    All = Autotristate + Enabled + Dropallowed + Dragallowed + Editable + Selectable
 }
-

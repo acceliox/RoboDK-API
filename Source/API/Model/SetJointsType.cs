@@ -1,17 +1,4 @@
 ﻿// ----------------------------------------------------------------------------------------------------------
-// Copyright 2018 - RoboDK Inc. - https://robodk.com/
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-// http://www.apache.org/licenses/LICENSE-2.0
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-// ----------------------------------------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------------------------------------
 // This file (RoboDK.cs) implements the RoboDK API for C#
 // This file defines the following classes:
 //     Mat: Matrix class, useful pose operations
@@ -39,34 +26,30 @@
 // ----------------------------------------------------------------------------------------------------------
 
 
+namespace RoboDk.API.Model;
 
-namespace RoboDk.API.Model
+/// <summary>
+/// Type of information returned by InstructionListJoints and GetInstructionListJoints
+/// </summary>
+public enum SetJointsType
 {
     /// <summary>
-    /// Type of information returned by InstructionListJoints and GetInstructionListJoints
+    /// Default behavior, will saturate the joints and apply the result. This option is used to support older versions of RoboDK.
     /// </summary>
-    public enum SetJointsType
-    {
-        /// <summary>
-        /// Default behavior, will saturate the joints and apply the result. This option is used to support older versions of RoboDK.
-        /// </summary>
-        Default = 0,
+    Default = 0,
 
-        /// <summary>
-        /// setJoints will apply the robot joints in any case. The robot may be displayed in an invalid solution: robot panel values and sliders will not show the correct robot position.
-        /// </summary>
-        Always = 1,
+    /// <summary>
+    /// setJoints will apply the robot joints in any case. The robot may be displayed in an invalid solution: robot panel values and sliders will not show the correct robot position.
+    /// </summary>
+    Always = 1,
 
-        /// <summary>
-        /// Will ignore setting robot joints if the joints are invalid (outside joint limits). This is the same as the default behavior with accurate return of saturation state.
-        /// </summary>
-        SaturateIgnore = 2,
+    /// <summary>
+    /// Will ignore setting robot joints if the joints are invalid (outside joint limits). This is the same as the default behavior with accurate return of saturation state.
+    /// </summary>
+    SaturateIgnore = 2,
 
-        /// <summary>
-        /// Will saturate the robot joints and apply the closest robot joitns solution.
-        /// </summary>
-        SaturateApply = 3
-    }
+    /// <summary>
+    /// Will saturate the robot joints and apply the closest robot joitns solution.
+    /// </summary>
+    SaturateApply = 3
 }
-
-

@@ -1,17 +1,4 @@
 ﻿// ----------------------------------------------------------------------------------------------------------
-// Copyright 2018 - RoboDK Inc. - https://robodk.com/
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-// http://www.apache.org/licenses/LICENSE-2.0
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-// ----------------------------------------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------------------------------------
 // This file (RoboDK.cs) implements the RoboDK API for C#
 // This file defines the following classes:
 //     Mat: Matrix class, useful pose operations
@@ -39,53 +26,50 @@
 // ----------------------------------------------------------------------------------------------------------
 
 
+namespace RoboDk.API.Model;
 
-namespace RoboDk.API.Model
+/// <summary>
+/// State of the RoboDK window
+/// </summary>
+public enum WindowState
 {
     /// <summary>
-    /// State of the RoboDK window
+    /// Hidden
     /// </summary>
-    public enum WindowState
-    {
-        /// <summary>
-        /// Hidden
-        /// </summary>
-        Hidden = -1,
+    Hidden = -1,
 
-        /// <summary>
-        /// Visible
-        /// </summary>
-        Show = 0,
+    /// <summary>
+    /// Visible
+    /// </summary>
+    Show = 0,
 
-        /// <summary>
-        /// Minimize Window
-        /// </summary>
-        Minimized = 1,
+    /// <summary>
+    /// Minimize Window
+    /// </summary>
+    Minimized = 1,
 
-        /// <summary>
-        /// Show normal window (last known state)
-        /// </summary>
-        Normal = 2,
+    /// <summary>
+    /// Show normal window (last known state)
+    /// </summary>
+    Normal = 2,
 
-        /// <summary>
-        /// Show maximized window
-        /// </summary>
-        Maximized = 3,
+    /// <summary>
+    /// Show maximized window
+    /// </summary>
+    Maximized = 3,
 
-        /// <summary>
-        /// Show fulscreen window
-        /// </summary>
-        Fullscreen = 4,
+    /// <summary>
+    /// Show fulscreen window
+    /// </summary>
+    Fullscreen = 4,
 
-        /// <summary>
-        /// Show maximized window without the toolbar and without the menu
-        /// </summary>
-        Cinema = 5,
+    /// <summary>
+    /// Show maximized window without the toolbar and without the menu
+    /// </summary>
+    Cinema = 5,
 
-        /// <summary>
-        /// Show fulscreen window without the toolbar and without the menu
-        /// </summary>
-        FullScreenCinema = 6
-    }
+    /// <summary>
+    /// Show fulscreen window without the toolbar and without the menu
+    /// </summary>
+    FullScreenCinema = 6
 }
-

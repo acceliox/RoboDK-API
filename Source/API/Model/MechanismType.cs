@@ -1,17 +1,4 @@
 ﻿// ----------------------------------------------------------------------------------------------------------
-// Copyright 2018 - RoboDK Inc. - https://robodk.com/
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-// http://www.apache.org/licenses/LICENSE-2.0
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-// ----------------------------------------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------------------------------------
 // This file (RoboDK.cs) implements the RoboDK API for C#
 // This file defines the following classes:
 //     Mat: Matrix class, useful pose operations
@@ -38,58 +25,57 @@
 // This library includes the mathematics to operate with homogeneous matrices for robotics.
 // ----------------------------------------------------------------------------------------------------------
 
-namespace RoboDk.API.Model
+namespace RoboDk.API.Model;
+
+public enum MechanismType
 {
-    public enum MechanismType
-    {
-        /// <summary>
-        /// 1R mechanism (1 rotational axis)
-        /// </summary>
-        T_1R = 1,
+    /// <summary>
+    /// 1R mechanism (1 rotational axis)
+    /// </summary>
+    T_1R = 1,
 
-        /// <summary>
-        /// 2R mechanism (2 rotational axes)
-        /// </summary>
-        T_2R = 2,
+    /// <summary>
+    /// 2R mechanism (2 rotational axes)
+    /// </summary>
+    T_2R = 2,
 
-        /// <summary>
-        /// 3R mechanism (3 rotational axes)
-        /// </summary>
-        T_3R = 3,
+    /// <summary>
+    /// 3R mechanism (3 rotational axes)
+    /// </summary>
+    T_3R = 3,
 
-        /// <summary>
-        /// 1T mechanism (1 translational axis)
-        /// </summary>
-        T_1T = 4,
+    /// <summary>
+    /// 1T mechanism (1 translational axis)
+    /// </summary>
+    T_1T = 4,
 
-        /// <summary>
-        /// 2T mechanism (2 translational axes) - T-bot
-        /// </summary>
-        T_2T = 5,
+    /// <summary>
+    /// 2T mechanism (2 translational axes) - T-bot
+    /// </summary>
+    T_2T = 5,
 
-        /// <summary>
-        /// 3T mechanism (3 translational axes) - H-bot
-        /// </summary>
-        T_3T = 6,
+    /// <summary>
+    /// 3T mechanism (3 translational axes) - H-bot
+    /// </summary>
+    T_3T = 6,
 
-        /// <summary>
-        /// 6 axis robot
-        /// </summary>
-        T_6DOF = 7,
+    /// <summary>
+    /// 6 axis robot
+    /// </summary>
+    T_6DOF = 7,
 
-        /// <summary>
-        /// 7-axis robot
-        /// </summary>
-        T_7DOF = 8,
+    /// <summary>
+    /// 7-axis robot
+    /// </summary>
+    T_7DOF = 8,
 
-        /// <summary>
-        /// Scara robot (4 axes)
-        /// </summary>
-        T_SCARA = 9,
-        
-        /// <summary>
-        /// Gripper (2-finger gripper)
-        /// </summary>
-        T_GRIPPER = 10
-    }
+    /// <summary>
+    /// Scara robot (4 axes)
+    /// </summary>
+    T_SCARA = 9,
+
+    /// <summary>
+    /// Gripper (2-finger gripper)
+    /// </summary>
+    T_GRIPPER = 10
 }

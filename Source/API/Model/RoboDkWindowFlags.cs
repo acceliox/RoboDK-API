@@ -1,17 +1,4 @@
 ﻿// ----------------------------------------------------------------------------------------------------------
-// Copyright 2018 - RoboDK Inc. - https://robodk.com/
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-// http://www.apache.org/licenses/LICENSE-2.0
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-// ----------------------------------------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------------------------------------
 // This file (RoboDK.cs) implements the RoboDK API for C#
 // This file defines the following classes:
 //     Mat: Matrix class, useful pose operations
@@ -40,34 +27,32 @@
 
 using System;
 
-namespace RoboDk.API.Model
+namespace RoboDk.API.Model;
+
+/// <summary>
+/// RoboDK Window Flags
+/// </summary>
+[Flags]
+public enum WindowFlags
 {
-    /// <summary>
-    /// RoboDK Window Flags
-    /// </summary>
-    [Flags]
-    public enum WindowFlags
-    {
-        TreeActive = 1,     // Enable the tree
-        View3DActive = 2,   // Enable the 3D view (3D mouse navigation)
-        LeftClick = 4,      // Enable left clicks
-        RightClick = 8,     // Enable right clicks
-        DoubleClick = 16,   // Enable double clicks
-        MenuActive = 32,            // Enable the main menu (complete menu)
-        MenuFileActive = 64,        // Enable the File menu
-        MenuEditActive = 128,       // Enable the Edit menu
-        MenuProgramActive = 256,    // Enable the Program menu
-        MenuToolsActive = 512,      // Enable the Tools menu
-        MenuUtilitiesActive = 1024, // Enable the Utilities menu
-        MenuConnectActive = 2048,   // Enable the Connect menu
-        WindowKeysActive = 4096,    // Enable the keyboard
-        TreeVisible = 8192,         // Make the station tree visible
-        ReferencesVisible = 16384,  // Make the reference frames visible
-        None = 0,                   //  Disable everything
-        All = 0xFFFF,               // Enable everything
+    TreeActive = 1, // Enable the tree
+    View3DActive = 2, // Enable the 3D view (3D mouse navigation)
+    LeftClick = 4, // Enable left clicks
+    RightClick = 8, // Enable right clicks
+    DoubleClick = 16, // Enable double clicks
+    MenuActive = 32, // Enable the main menu (complete menu)
+    MenuFileActive = 64, // Enable the File menu
+    MenuEditActive = 128, // Enable the Edit menu
+    MenuProgramActive = 256, // Enable the Program menu
+    MenuToolsActive = 512, // Enable the Tools menu
+    MenuUtilitiesActive = 1024, // Enable the Utilities menu
+    MenuConnectActive = 2048, // Enable the Connect menu
+    WindowKeysActive = 4096, // Enable the keyboard
+    TreeVisible = 8192, // Make the station tree visible
+    ReferencesVisible = 16384, // Make the reference frames visible
+    None = 0, //  Disable everything
+    All = 0xFFFF, // Enable everything
 
-        MenuActiveAll = MenuActive | MenuFileActive | MenuEditActive | MenuProgramActive |
-                        MenuToolsActive | MenuUtilitiesActive | MenuConnectActive
-    }
+    MenuActiveAll = MenuActive | MenuFileActive | MenuEditActive | MenuProgramActive |
+                    MenuToolsActive | MenuUtilitiesActive | MenuConnectActive
 }
-

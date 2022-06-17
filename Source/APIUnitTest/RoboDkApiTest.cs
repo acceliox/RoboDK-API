@@ -1,9 +1,8 @@
-﻿// We currently can not support RoboDK Tests on the build server.
-// Ignore all tests on the build server
-// To locally execute the unit test uncomment the line below
-//#define TEST_ROBODK_API
+﻿//#define TEST_ROBODK_API
 
 #region Namespaces
+
+#endregion
 
 using System;
 using System.Collections.Generic;
@@ -20,8 +19,6 @@ using RoboDk.API;
 using RoboDk.API.Exceptions;
 using RoboDk.API.Model;
 
-#endregion
-
 namespace RoboDkApiTest
 {
 #if !TEST_ROBODK_API
@@ -30,13 +27,7 @@ namespace RoboDkApiTest
     [TestClass]
     public class RoboDkApiTestWhenRoboDkIsRunning
     {
-        #region Fields
-
         private static IRoboDK _roboDk;
-
-        #endregion
-
-        #region Public Methods
 
         [ClassCleanup]
         public static void Class_Cleanup()
@@ -146,8 +137,6 @@ namespace RoboDkApiTest
             var whenAction = new Action(() => rdk.AddFrame("TestFrame"));
             whenAction.Should().Throw<ObjectDisposedException>();
         }
-
-        #endregion
     }
 
 #if !TEST_ROBODK_API
@@ -156,8 +145,6 @@ namespace RoboDkApiTest
     [TestClass]
     public class RoboDkApiConnectTestWhenStartingNewRoboDKInstance
     {
-        #region Public Methods
-
         [ClassCleanup]
         public static void Class_Cleanup()
         {
@@ -209,7 +196,7 @@ namespace RoboDkApiTest
             {
                 RoboDKServerStartPort = 10000,
                 Logfile = Path.Combine(Directory.GetCurrentDirectory(), "RoboDk.log"),
-                DefaultSocketTimeoutMilliseconds = 20*1000
+                DefaultSocketTimeoutMilliseconds = 20 * 1000
             };
 
             rdk.Connect();
@@ -245,7 +232,7 @@ namespace RoboDkApiTest
             void DoTemporaryConnectionCalls(IReadOnlyCollection<IItem> staticParts)
             {
                 // ReSharper disable once AccessToModifiedClosure
-                while(!stopAsyncTask)
+                while (!stopAsyncTask)
                 {
                     foreach (var staticPart in staticParts)
                     {
@@ -328,7 +315,7 @@ namespace RoboDkApiTest
 
                 var rdk = new RoboDK
                 {
-                    RoboDKServerStartPort = port,
+                    RoboDKServerStartPort = port
                 };
 
                 rdk.Connect().Should().BeFalse();
@@ -340,7 +327,8 @@ namespace RoboDkApiTest
                 rdk.Process.Should().BeNull();
 
                 rdk.Invoking(r => r.CloseRoboDK())
-                    .Should().Throw<RdkException>();
+                    .Should()
+                    .Throw<RdkException>();
             }
         }
 
@@ -362,7 +350,7 @@ namespace RoboDkApiTest
 
                 var rdk = new RoboDK
                 {
-                    RoboDKServerStartPort = port,
+                    RoboDKServerStartPort = port
                 };
 
                 rdk.Connect().Should().BeFalse();
@@ -374,7 +362,8 @@ namespace RoboDkApiTest
                 rdk.Process.Should().BeNull();
 
                 rdk.Invoking(r => r.CloseRoboDK())
-                    .Should().Throw<RdkException>();
+                    .Should()
+                    .Throw<RdkException>();
             }
         }
 
@@ -396,7 +385,7 @@ namespace RoboDkApiTest
                 var rdk = new RoboDK
                 {
                     StartNewInstance = true,
-                    RoboDKServerStartPort = port,
+                    RoboDKServerStartPort = port
                 };
 
                 rdk.Connect().Should().BeFalse();
@@ -412,7 +401,8 @@ namespace RoboDkApiTest
                 Process.GetProcessesByName("RoboDK").Should().BeEmpty();
 
                 rdk.Invoking(r => r.CloseRoboDK())
-                    .Should().Throw<RdkException>();
+                    .Should()
+                    .Throw<RdkException>();
             }
         }
 
@@ -435,7 +425,7 @@ namespace RoboDkApiTest
                 var rdk = new RoboDK
                 {
                     StartNewInstance = true,
-                    RoboDKServerStartPort = port,
+                    RoboDKServerStartPort = port
                 };
 
                 rdk.Connect().Should().BeFalse();
@@ -451,7 +441,8 @@ namespace RoboDkApiTest
                 Process.GetProcessesByName("RoboDK").Should().BeEmpty();
 
                 rdk.Invoking(r => r.CloseRoboDK())
-                    .Should().Throw<RdkException>();
+                    .Should()
+                    .Throw<RdkException>();
             }
         }
 
@@ -465,7 +456,7 @@ namespace RoboDkApiTest
                 RoboDKServerStartPort = 56252,
 
                 //CustomCommandLineArgumentString = "-NOSPLASH -NOSHOW -HIDDEN -PORT=56252  -NOSTDOUT -SKIPINIRECENT -SKIPINI -SKIPCOM -EXIT_LAST_COM -NOUI",
-                CustomCommandLineArgumentString = "-PORT=56252  -NOSTDOUT -SKIPINIRECENT -SKIPINI -SKIPCOM -EXIT_LAST_COM -NOUI -TREE_STATE=-1",
+                CustomCommandLineArgumentString = "-PORT=56252  -NOSTDOUT -SKIPINIRECENT -SKIPINI -SKIPCOM -EXIT_LAST_COM -NOUI -TREE_STATE=-1"
 
                 //CustomCommandLineArgumentString = "/NOSPLASH /NOSHOW /HIDDEN /PORT=56252  /NOSTDOUT /SKIPINIRECENT /SKIPINI /SKIPCOM /EXIT_LAST_COM /NOUI /TREE_STATE=-1",
                 //CustomCommandLineArgumentString = "/NOSPLASH /NOSHOW /HIDDEN /NOSTDOUT /SKIPINIRECENT /SKIPINI /SKIPCOM /EXIT_LAST_COM /NOUI /TREE_STATE=-1"
@@ -484,8 +475,6 @@ namespace RoboDkApiTest
 
             rdk.CloseRoboDK();
         }
-
-        #endregion
     }
 
 #if !TEST_ROBODK_API
@@ -494,13 +483,7 @@ namespace RoboDkApiTest
     [TestClass]
     public class RoboDkApiTest
     {
-        #region Fields
-
         private static IRoboDK _roboDk;
-
-        #endregion
-
-        #region Public Methods
 
         [ClassCleanup]
         public static void Class_Cleanup()
@@ -544,30 +527,18 @@ namespace RoboDkApiTest
             child.ItemId.Should().NotBe(frame2.ItemId);
             child.Name().Should().Be(frame2.Name());
         }
-
-        #endregion
     }
 
 
     internal class SocketHelper : IDisposable
     {
-        #region Fields
-
         private Socket _client;
         private Socket _listener;
         private Socket _server;
 
-        #endregion
-
-        #region Properties
-
         public int ServerPort => ((IPEndPoint)_listener.LocalEndPoint).Port;
 
         public int ClientPort => ((IPEndPoint)_client.LocalEndPoint).Port;
-
-        #endregion
-
-        #region Public Methods
 
         public void OpenServer(int serverPort)
         {
@@ -615,10 +586,6 @@ namespace RoboDkApiTest
             GC.SuppressFinalize(this);
         }
 
-        #endregion
-
-        #region Protected Methods
-
         protected virtual void Dispose(bool disposing)
         {
             if (disposing)
@@ -628,25 +595,13 @@ namespace RoboDkApiTest
                 _listener?.Dispose();
             }
         }
-
-        #endregion
     }
 
     internal static class RoboDkProcessHelper
     {
-        #region Constants
-
         private const string Lock = "lock";
 
-        #endregion
-
-        #region Fields
-
         private static IRoboDK _roboDk;
-
-        #endregion
-
-        #region Public Methods
 
         public static void StopRoboDkInstance()
         {
@@ -693,20 +648,12 @@ namespace RoboDkApiTest
                 return _roboDk ?? StartNewRoboDkInstance();
             }
         }
-
-        #endregion
     }
 
 
     internal class Logger
     {
-        #region Constants
-
         private const string Lock = "lock";
-
-        #endregion
-
-        #region Public Methods
 
         public static void WriteLine(string message)
         {
@@ -718,7 +665,5 @@ namespace RoboDkApiTest
                 }
             }
         }
-
-        #endregion
     }
 }

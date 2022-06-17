@@ -7,178 +7,153 @@ using System.Net.Sockets;
 
 #endregion
 
-namespace RoboDk.API
+namespace RoboDk.API;
+
+/// <summary>
+/// Utility class for socket communication.
+/// General RoboDK Protocol:
+///    - Send command string
+///    - Send 0 .. n command parameter
+///    - Receive Result.
+/// The class buffers all the send parameters in a buffer.
+/// When the receive function is called, then all the buffered data is sent in one block.
+/// Unnecessary copying of the data is avoided. The code is faster but less pretty.
+/// Do NOT use multi-threaded.
+/// </summary>
+internal sealed class BufferedSocketAdapter : IDisposable
 {
-    /// <summary>
-    /// Utility class for socket communication.
-    /// General RoboDK Protocol:
-    ///    - Send command string
-    ///    - Send 0 .. n command parameter
-    ///    - Receive Result.
-    /// The class buffers all the send parameters in a buffer.
-    /// When the receive function is called, then all the buffered data is sent in one block.
-    /// Unnecessary copying of the data is avoided. The code is faster but less pretty.
-    /// Do NOT use multi-threaded.
-    /// </summary>
-    internal sealed class BufferedSocketAdapter : IDisposable
+    private const int BufferCapacity = 1500; // TCP MTU
+
+    private readonly Socket _socket;
+    private readonly byte[] _bufferArray = new byte[BufferCapacity];
+    private int _numberOfBytesInBuffer;
+    private bool _disposed;
+
+    public BufferedSocketAdapter(Socket s)
     {
-        #region Constants
+        _socket = s;
 
-        private const int BufferCapacity = 1500; // TCP MTU
+        // Disable the Nagle Algorithm for this tcp socket.
+        _socket.NoDelay = true;
+    }
 
-        #endregion
+    public int LocalPort => ((IPEndPoint)_socket.LocalEndPoint).Port;
 
-        #region Fields
+    public int ReceiveTimeout
+    {
+        get => _socket.ReceiveTimeout;
+        set => _socket.ReceiveTimeout = value;
+    }
 
-        private readonly Socket _socket;
-        private readonly byte[] _bufferArray = new byte[BufferCapacity];
-        private int _numberOfBytesInBuffer;
-        private bool _disposed;
+    public int Available => _socket.Available;
 
-        #endregion
+    public bool Connected => _socket.Connected;
 
-        #region Constructors
+    public bool Poll(int microSeconds, SelectMode mode)
+    {
+        return _socket.Poll(microSeconds, mode);
+    }
 
-        public BufferedSocketAdapter(Socket s)
+    public void SendData(byte[] data)
+    {
+        if (IsTooBigForBuffer(data))
         {
-            _socket = s;
-
-            // Disable the Nagle Algorithm for this tcp socket.
-            _socket.NoDelay = true;
+            SendLargeDataUnbuffered(data);
         }
-
-        #endregion
-
-        #region Properties
-
-        public int LocalPort => ((IPEndPoint)_socket.LocalEndPoint).Port;
-
-        public int ReceiveTimeout
+        else
         {
-            get => _socket.ReceiveTimeout;
-            set => _socket.ReceiveTimeout = value;
+            BufferData(data);
         }
+    }
 
-        public int Available => _socket.Available;
-
-        public bool Connected => _socket.Connected;
-
-        #endregion
-
-        #region Public Methods
-
-        public bool Poll(int microSeconds, SelectMode mode)
+    public void ReceiveData(byte[] data, int offset, int len)
+    {
+        Flush();
+        Debug.Assert(offset + len <= data.Length);
+        var receivedBytes = 0;
+        while (receivedBytes < len)
         {
-            return _socket.Poll(microSeconds, mode);
+            var n = _socket.Receive(data, offset + receivedBytes, len - receivedBytes, SocketFlags.None);
+            receivedBytes += n;
         }
+    }
 
-        public void Dispose()
+    public void ReceiveData(byte[] data, int len)
+    {
+        ReceiveData(data, 0, len);
+    }
+
+    public void Close()
+    {
+        _socket.Close();
+    }
+
+    public void Dispose()
+    {
+        if (!_disposed)
         {
-            if (!_disposed)
+            if (_socket != null)
             {
-                if (_socket != null)
+                try
                 {
-                    try
-                    {
-                        _socket.Shutdown(SocketShutdown.Both);
-                    }
-                    finally
-                    {
-                        _socket.Close();
-                        _socket.Dispose();
-                    }
+                    _socket.Shutdown(SocketShutdown.Both);
                 }
-
-                _disposed = true;
+                finally
+                {
+                    _socket.Close();
+                    _socket.Dispose();
+                }
             }
-        }
 
-        public void SendData(byte[] data)
+            _disposed = true;
+        }
+    }
+
+    private bool IsTooBigForBuffer(byte[] data)
+    {
+        return data.Length > BufferCapacity;
+    }
+
+    private bool HasSufficientBuffer(byte[] data)
+    {
+        var freeBuffer = BufferCapacity - _numberOfBytesInBuffer;
+        return data.Length <= freeBuffer;
+    }
+
+    private void SendLargeDataUnbuffered(byte[] data)
+    {
+        Flush(); // This maintains the correct order.
+        SendToSocket(data, data.Length);
+    }
+
+    private void BufferData(byte[] data)
+    {
+        Debug.Assert(data.Length <= BufferCapacity); // Too large data must be handled by caller.
+
+        if (HasSufficientBuffer(data))
         {
-            if (IsTooBigForBuffer(data))
-            {
-                SendLargeDataUnbuffered(data);
-            }
-            else
-            {
-                BufferData(data);
-            }
+            Array.Copy(data, 0, _bufferArray, _numberOfBytesInBuffer, data.Length);
+            _numberOfBytesInBuffer += data.Length;
         }
-
-        public void ReceiveData(byte[] data, int offset, int len)
+        else
         {
-            Flush();
-            Debug.Assert(offset + len <= data.Length);
-            var receivedBytes = 0;
-            while (receivedBytes < len)
-            {
-                var n = _socket.Receive(data, offset + receivedBytes, len - receivedBytes, SocketFlags.None);
-                receivedBytes += n;
-            }
+            Flush(); // This maintains the correct order and provides enough buffer.
+            BufferData(data);
         }
+    }
 
-        public void ReceiveData(byte[] data, int len)
+    private void Flush()
+    {
+        if (_numberOfBytesInBuffer > 0)
         {
-            ReceiveData(data, 0, len);
+            SendToSocket(_bufferArray, _numberOfBytesInBuffer);
+            _numberOfBytesInBuffer = 0;
         }
+    }
 
-        public void Close()
-        {
-            _socket.Close();
-        }
-
-        #endregion
-
-        #region Private Methods
-
-        private bool IsTooBigForBuffer(byte[] data)
-        {
-            return data.Length > BufferCapacity;
-        }
-
-        private bool HasSufficientBuffer(byte[] data)
-        {
-            var freeBuffer = BufferCapacity - _numberOfBytesInBuffer;
-            return data.Length <= freeBuffer;
-        }
-
-        private void SendLargeDataUnbuffered(byte[] data)
-        {
-            Flush(); // This maintains the correct order.
-            SendToSocket(data, data.Length);
-        }
-
-        private void BufferData(byte[] data)
-        {
-            Debug.Assert(data.Length <= BufferCapacity); // Too large data must be handled by caller.
-
-            if (HasSufficientBuffer(data))
-            {
-                Array.Copy(data, 0, _bufferArray, _numberOfBytesInBuffer, data.Length);
-                _numberOfBytesInBuffer += data.Length;
-            }
-            else
-            {
-                Flush(); // This maintains the correct order and provides enough buffer.
-                BufferData(data);
-            }
-        }
-
-        private void Flush()
-        {
-            if (_numberOfBytesInBuffer > 0)
-            {
-                SendToSocket(_bufferArray, _numberOfBytesInBuffer);
-                _numberOfBytesInBuffer = 0;
-            }
-        }
-
-        private void SendToSocket(byte[] data, int count)
-        {
-            var n = _socket.Send(data, count, SocketFlags.None);
-            Debug.Assert(n == count);
-        }
-
-        #endregion
+    private void SendToSocket(byte[] data, int count)
+    {
+        var n = _socket.Send(data, count, SocketFlags.None);
+        Debug.Assert(n == count);
     }
 }

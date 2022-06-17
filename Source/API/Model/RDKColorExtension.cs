@@ -1,13 +1,7 @@
-﻿#region Namespaces
-
+﻿
 using System.Diagnostics;
-#if NETCORE
 using System.Drawing;
-#else
-using System.Windows.Media;
-#endif
 
-#endregion
 
 namespace RoboDk.API.Model
 {
@@ -26,13 +20,12 @@ namespace RoboDk.API.Model
         {
             Debug.Assert(array.Length == 4);
             var color = Color.FromArgb(
-                (byte) (array[3] * 255.0),
-                (byte) (array[0] * 255.0),
-                (byte) (array[1] * 255.0),
-                (byte) (array[2] * 255.0)
+                (byte)(array[3] * 255.0),
+                (byte)(array[0] * 255.0),
+                (byte)(array[1] * 255.0),
+                (byte)(array[2] * 255.0)
             );
             return color;
         }
     }
-
 }

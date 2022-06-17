@@ -1,17 +1,4 @@
 ﻿// ----------------------------------------------------------------------------------------------------------
-// Copyright 2018 - RoboDK Inc. - https://robodk.com/
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-// http://www.apache.org/licenses/LICENSE-2.0
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-// ----------------------------------------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------------------------------------
 // This file (RoboDK.cs) implements the RoboDK API for C#
 // This file defines the following classes:
 //     Mat: Matrix class, useful pose operations
@@ -39,23 +26,20 @@
 // ----------------------------------------------------------------------------------------------------------
 
 
+namespace RoboDk.API.Model;
 
-namespace RoboDk.API.Model
+/// <summary>
+/// Program execution type
+/// </summary>
+public enum ProgramExecutionType
 {
     /// <summary>
-    /// Program execution type
+    /// Set the program to run on the simulator
     /// </summary>
-    public enum ProgramExecutionType
-    {
-        /// <summary>
-        /// Set the program to run on the simulator
-        /// </summary>
-        RunOnSimulator = 1,
+    RunOnSimulator = 1,
 
-        /// <summary>
-        /// Set the program to run on the robot
-        /// </summary>
-        RunOnRobot = 2
-    }
+    /// <summary>
+    /// Set the program to run on the robot
+    /// </summary>
+    RunOnRobot = 2
 }
-

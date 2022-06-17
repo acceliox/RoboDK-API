@@ -1,17 +1,4 @@
 ﻿// ----------------------------------------------------------------------------------------------------------
-// Copyright 2018 - RoboDK Inc. - https://robodk.com/
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-// http://www.apache.org/licenses/LICENSE-2.0
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-// ----------------------------------------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------------------------------------
 // This file (RoboDK.cs) implements the RoboDK API for C#
 // This file defines the following classes:
 //     Mat: Matrix class, useful pose operations
@@ -39,44 +26,40 @@
 // ----------------------------------------------------------------------------------------------------------
 
 
+namespace RoboDk.API.Model;
 
-namespace RoboDk.API.Model
+/// <summary>
+///  Projection types (for AddCurve)
+/// </summary>
+public enum ProjectionType
 {
     /// <summary>
-    ///  Projection types (for AddCurve)
+    /// No curve projection.
     /// </summary>
-    public enum ProjectionType
-    {
-        /// <summary>
-        /// No curve projection.
-        /// </summary>
-        None = 0,
+    None = 0,
 
-        /// <summary>
-        /// The projection will the closest point on the surface.
-        /// </summary>
-        Closest = 1,
+    /// <summary>
+    /// The projection will the closest point on the surface.
+    /// </summary>
+    Closest = 1,
 
-        /// <summary>
-        /// The projection will be done along the normal.
-        /// </summary>
-        AlongNormal = 2,
+    /// <summary>
+    /// The projection will be done along the normal.
+    /// </summary>
+    AlongNormal = 2,
 
-        /// <summary>
-        /// The projection will be done along the normal. Furthermore, the normal will be recalculated according to the surface normal.
-        /// </summary>
-        AlongNormalRecalc = 3,
+    /// <summary>
+    /// The projection will be done along the normal. Furthermore, the normal will be recalculated according to the surface normal.
+    /// </summary>
+    AlongNormalRecalc = 3,
 
-        /// <summary>
-        /// The projection will be the closest point on the surface and the normals will be recalculated.
-        /// </summary>
-        ClosesRecalcNormal = 4,
+    /// <summary>
+    /// The projection will be the closest point on the surface and the normals will be recalculated.
+    /// </summary>
+    ClosesRecalcNormal = 4,
 
-        /// <summary>
-        /// The normals are recalculated according to the surface normal of the closest projection. The points are not changed.
-        /// </summary>
-        RecalcNormal = 5,
-
-    }
+    /// <summary>
+    /// The normals are recalculated according to the surface normal of the closest projection. The points are not changed.
+    /// </summary>
+    RecalcNormal = 5
 }
-

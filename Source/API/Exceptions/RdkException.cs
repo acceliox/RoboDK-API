@@ -6,77 +6,58 @@ using System.Runtime.Serialization;
 
 #endregion
 
-namespace RoboDk.API.Exceptions
+namespace RoboDk.API.Exceptions;
+
+/// <summary>
+/// Class used for RoboDK exceptions
+/// </summary>  
+[Serializable]
+public class RdkException : Exception
 {
-    /// <summary>
-    /// Class used for RoboDK exceptions
-    /// </summary>  
-    [Serializable]
-    public class RdkException : Exception
+    private string _detailString;
+
+    public RdkException(string message,
+        [CallerMemberName] string memberName = "",
+        [CallerLineNumber] int lineNumber = 0,
+        [CallerFilePath] string filePath = "")
+        : base(message)
     {
-        #region Fields
+        MemberName = memberName;
+        FilePath = filePath;
+        LineNumber = lineNumber;
+    }
 
-        private string _detailString;
+    public RdkException()
+    {
+    }
 
-        #endregion
+    public RdkException(string message) : base(message)
+    {
+    }
 
-        #region Constructors
+    public RdkException(string message, Exception innerException) : base(message, innerException)
+    {
+    }
 
-        public RdkException(string message, [CallerMemberName] string memberName = "",
-            [CallerLineNumber] int lineNumber = 0, [CallerFilePath] string filePath = "")
-            : base(message)
-        {
-            MemberName = memberName;
-            FilePath = filePath;
-            LineNumber = lineNumber;
-        }
+    protected RdkException(SerializationInfo info, StreamingContext context) : base(info, context)
+    {
+    }
 
-        public RdkException()
-        {
-        }
+    public string MemberName { get; }
 
-        public RdkException(string message) : base(message)
-        {
-        }
+    public string FilePath { get; }
 
-        public RdkException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
+    public int LineNumber { get; }
 
-        protected RdkException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
+    public string DetailString => _detailString ?? (_detailString = GetDetailString());
 
-        #endregion
+    public override void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+        base.GetObjectData(info, context);
+    }
 
-        #region Properties
-
-        public string MemberName { get; }
-
-        public string FilePath { get; }
-
-        public int LineNumber { get; }
-
-        public string DetailString => _detailString ?? (_detailString = GetDetailString());
-
-        #endregion
-
-        #region Overrides
-
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
-        }
-
-        #endregion
-
-        #region Private Methods
-
-        private string GetDetailString()
-        {
-            return $"Member Name: {MemberName} \nFile: {FilePath} \nLine: {LineNumber}";
-        }
-
-        #endregion
+    private string GetDetailString()
+    {
+        return $"Member Name: {MemberName} \nFile: {FilePath} \nLine: {LineNumber}";
     }
 }
