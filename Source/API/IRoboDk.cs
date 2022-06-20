@@ -47,11 +47,6 @@ public interface IRoboDK
     string ApplicationDir { get; }
 
     /// <summary>
-    /// TCP Server Port to which this instance is connected to.
-    /// </summary>
-    int RoboDKServerPort { get; }
-
-    /// <summary>
     /// TCP Client Port
     /// </summary>
     int RoboDKClientPort { get; }
