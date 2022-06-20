@@ -8,7 +8,6 @@ using System.Linq;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
-using Microsoft.Win32;
 using RoboDk.API.Exceptions;
 using RoboDk.API.Model;
 
@@ -57,9 +56,7 @@ public class RoboDK : IRoboDK, IDisposable
 
         RoboDKServerIpAddress = "localhost";
 
-        // Default RoboDK Port Range: 20500 .. 20502
-        RoboDKServerStartPort = RoboDkCommandLineParameter.DefaultApiServerPort;
-        RoboDKServerEndPort = RoboDKServerStartPort + 2;
+        RoboDKServerPort = 20500;
 
         RoboDKBuild = 0;
     }
@@ -315,37 +312,6 @@ public class RoboDK : IRoboDK, IDisposable
         return rdkList;
     }
 
-    /// <summary>
-    /// Check if RoboDK was installed from RoboDK's official installer
-    /// </summary>
-    /// <returns></returns>
-    public static bool RoboDKInstallFound()
-    {
-        return RoboDKInstallPath() != null;
-    }
-
-    /// <summary>
-    /// Return the RoboDK install path according to the registry (saved by RoboDK installer)
-    /// </summary>
-    /// <returns></returns>
-    public static string RoboDKInstallPath()
-    {
-        using (var baseKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64))
-        using (var regKey = baseKey.OpenSubKey(@"SOFTWARE\RoboDK"))
-        {
-            // key now points to the 64-bit key
-            var installPath = regKey?.GetValue("INSTDIR").ToString();
-            if (!string.IsNullOrEmpty(installPath))
-            {
-                var s = Path.Combine(installPath, "bin\\RoboDK.exe");
-                return s;
-            }
-        }
-
-        const string defaultPath = @"C:\RoboDK\bin\RoboDK.exe";
-        return File.Exists(defaultPath) ? defaultPath : null;
-    }
-
 
     public static bool IsTcpPortFree(int tcpPort)
     {
@@ -379,77 +345,6 @@ public class RoboDK : IRoboDK, IDisposable
     public IRoboDKLink GetRoboDkLink()
     {
         return new RoboDKLink(this);
-    }
-
-    /// <inheritdoc />
-    public IItem AddShape(Mat trianglePoints, IItem addTo = null, bool shapeOverride = false, Color? color = null)
-    {
-        RequireBuild(5449);
-        var clr = color ?? Color.FromArgb(255, 127, 127, 127);
-        var colorArray = clr.ToRoboDKColorArray();
-        check_connection();
-        send_line("AddShape3");
-        send_matrix(trianglePoints);
-        send_item(addTo);
-        send_int(shapeOverride ? 1 : 0);
-        send_array(colorArray);
-        ReceiveTimeout = 3600 * 1000;
-        var newitem = rec_item();
-        ReceiveTimeout = DefaultSocketTimeoutMilliseconds;
-        check_status();
-        return newitem;
-    }
-
-    /// <inheritdoc />
-    public IItem AddShape(List<Mat> listTrianglePoints, IItem add_to = null, bool shape_override = false, List<Color> listColor = null)
-    {
-        RequireBuild(16532);
-        int nsubobjs = listTrianglePoints.Count;
-        if (listColor != null)
-        {
-            nsubobjs = Math.Min(nsubobjs, listColor.Count);
-        }
-
-        check_connection();
-        send_line("AddShape4");
-        send_item(add_to);
-        send_int(shape_override ? 1 : 0);
-        send_int(nsubobjs);
-        for (int i = 0; i < nsubobjs; i++)
-        {
-            send_matrix(listTrianglePoints[i]);
-            if (listColor != null)
-            {
-                send_array(listColor[i].ToRoboDKColorArray());
-            }
-            else
-            {
-                send_array(null);
-            }
-        }
-
-        ReceiveTimeout = 3600 * 1000;
-        var newitem = rec_item();
-        ReceiveTimeout = DefaultSocketTimeoutMilliseconds;
-        check_status();
-        return newitem;
-    }
-
-    /// <inheritdoc />
-    public void SetColor(List<IItem> item_list, List<Color> color_list)
-    {
-        RequireBuild(6471);
-        int nitm = Math.Min(item_list.Count, color_list.Count);
-        check_connection();
-        send_line("S_ColorList");
-        send_int(nitm);
-        for (int i = 0; i < nitm; i++)
-        {
-            send_item(item_list[i]);
-            send_line("#" + Color2Hex(color_list[i]));
-        }
-
-        check_status();
     }
 
     //Returns 1 if connection is valid, returns 0 if connection is invalid
@@ -1066,6 +961,77 @@ public class RoboDK : IRoboDK, IDisposable
         GC.SuppressFinalize(this);
     }
 
+    /// <inheritdoc />
+    public IItem AddShape(Mat trianglePoints, IItem addTo = null, bool shapeOverride = false, Color? color = null)
+    {
+        RequireBuild(5449);
+        var clr = color ?? Color.FromArgb(255, 127, 127, 127);
+        var colorArray = clr.ToRoboDKColorArray();
+        check_connection();
+        send_line("AddShape3");
+        send_matrix(trianglePoints);
+        send_item(addTo);
+        send_int(shapeOverride ? 1 : 0);
+        send_array(colorArray);
+        ReceiveTimeout = 3600 * 1000;
+        var newitem = rec_item();
+        ReceiveTimeout = DefaultSocketTimeoutMilliseconds;
+        check_status();
+        return newitem;
+    }
+
+    /// <inheritdoc />
+    public IItem AddShape(List<Mat> listTrianglePoints, IItem add_to = null, bool shape_override = false, List<Color> listColor = null)
+    {
+        RequireBuild(16532);
+        int nsubobjs = listTrianglePoints.Count;
+        if (listColor != null)
+        {
+            nsubobjs = Math.Min(nsubobjs, listColor.Count);
+        }
+
+        check_connection();
+        send_line("AddShape4");
+        send_item(add_to);
+        send_int(shape_override ? 1 : 0);
+        send_int(nsubobjs);
+        for (int i = 0; i < nsubobjs; i++)
+        {
+            send_matrix(listTrianglePoints[i]);
+            if (listColor != null)
+            {
+                send_array(listColor[i].ToRoboDKColorArray());
+            }
+            else
+            {
+                send_array(null);
+            }
+        }
+
+        ReceiveTimeout = 3600 * 1000;
+        var newitem = rec_item();
+        ReceiveTimeout = DefaultSocketTimeoutMilliseconds;
+        check_status();
+        return newitem;
+    }
+
+    /// <inheritdoc />
+    public void SetColor(List<IItem> item_list, List<Color> color_list)
+    {
+        RequireBuild(6471);
+        int nitm = Math.Min(item_list.Count, color_list.Count);
+        check_connection();
+        send_line("S_ColorList");
+        send_int(nitm);
+        for (int i = 0; i < nitm; i++)
+        {
+            send_item(item_list[i]);
+            send_line("#" + Color2Hex(color_list[i]));
+        }
+
+        check_status();
+    }
+
     /// <summary>
     /// Name of the RoboDK instance.
     /// In case of multiple instances the name can help to identify the instance.
@@ -1083,7 +1049,7 @@ public class RoboDK : IRoboDK, IDisposable
     /// <summary>
     /// TCP Server Port to which this instance is connected to.
     /// </summary>
-    public int RoboDKServerPort { get; private set; }
+    public int RoboDKServerPort { get; set; }
 
     /// <summary>
     /// TCP Client Port
@@ -1165,12 +1131,7 @@ public class RoboDK : IRoboDK, IDisposable
     /// <inheritdoc />
     public bool Connect()
     {
-        if (RoboDKServerEndPort < RoboDKServerStartPort)
-        {
-            throw new RdkException($"RoboDKServerEndPort:{RoboDKServerEndPort} < RoboDKServerStartPort:{RoboDKServerStartPort}");
-        }
-
-        var connected = StartNewInstance ? StartNewRoboDkInstance() : TryConnectToExistingRoboDkInstance();
+        var connected = TryConnectToExistingRoboDkInstance();
 
         if (connected)
         {
@@ -1182,11 +1143,6 @@ public class RoboDK : IRoboDK, IDisposable
         {
             _bufferedSocket.Dispose();
             _bufferedSocket = null;
-            if (Process != null)
-            {
-                Process.Kill();
-                Process.WaitForExit(2000);
-            }
         }
 
         return connected;
@@ -2671,83 +2627,10 @@ public class RoboDK : IRoboDK, IDisposable
         return newItem;
     }
 
-    private bool StartNewRoboDkInstance()
-    {
-        StartNewRoboDKProcess(RoboDKServerStartPort);
-        _bufferedSocket = ConnectToRoboDK(RoboDKServerIpAddress, RoboDKServerStartPort);
-        return _bufferedSocket != null;
-    }
-
     private bool TryConnectToExistingRoboDkInstance()
     {
-        for (var port = RoboDKServerStartPort; port <= RoboDKServerEndPort; port++)
-        {
-            _bufferedSocket = ConnectToRoboDK(RoboDKServerIpAddress, port);
-            if (_bufferedSocket != null)
-            {
-                return true;
-            }
-        }
-
-        return RoboDKServerIpAddress == "localhost" && StartNewRoboDkInstance();
-    }
-
-    private void StartNewRoboDKProcess(int tcpServerPort)
-    {
-        // No application path is given. Check the registry.
-        if (string.IsNullOrEmpty(ApplicationDir))
-        {
-            ApplicationDir = RoboDKInstallPath();
-        }
-
-        if (string.IsNullOrEmpty(ApplicationDir))
-        {
-            throw new FileNotFoundException("RoboDK.exe installation directory not found.");
-        }
-
-        if (!File.Exists(ApplicationDir))
-        {
-            throw new FileNotFoundException($"RoboDK.exe not found in the given {nameof(ApplicationDir)}:{ApplicationDir}");
-        }
-
-        _commandLineParameter.ApiTcpServerPort = tcpServerPort;
-        var commandLineArgumentString = _commandLineParameter.CommandLineArgumentString;
-        commandLineArgumentString += $" {CustomCommandLineArgumentString}";
-        commandLineArgumentString = commandLineArgumentString.Trim();
-
-        var processStartInfo = new ProcessStartInfo
-        {
-            FileName = ApplicationDir,
-            Arguments = commandLineArgumentString,
-            RedirectStandardOutput = true,
-            UseShellExecute = false
-        };
-
-        ValidateCommandLineParameter(processStartInfo);
-
-        Debug.WriteLine($"Start RoboDK {Name}: {ApplicationDir}\n{processStartInfo.Arguments}");
-
-        Process = Process.Start(processStartInfo);
-        if (Process == null || Process.HasExited)
-        {
-            throw new RdkException("Unable to start RoboDK.exe.");
-        }
-
-        // wait for RoboDK to output (stdout) RoboDK is Running. Works after v3.4.0.
-        var roboDkRunning = false;
-        while (!roboDkRunning)
-        {
-            var line = Process.StandardOutput.ReadLine();
-            if (line == null)
-            {
-                throw new RdkException("Unable to start RoboDK.exe. StandardOutput closed unexpectedly.");
-            }
-
-            Debug.WriteLine($"RoboDK: {line}");
-            roboDkRunning = line.Contains("RoboDK is Running");
-        }
-
-        Process.StandardOutput.Close();
+        _bufferedSocket = ConnectToRoboDK(RoboDKServerIpAddress, RoboDKServerPort);
+        return _bufferedSocket != null;
     }
 
     private static void ValidateCommandLineParameter(ProcessStartInfo processStartInfo)
