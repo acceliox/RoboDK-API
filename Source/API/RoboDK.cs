@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -1131,21 +1131,22 @@ public class RoboDK : IRoboDK, IDisposable
     /// <inheritdoc />
     public bool Connect()
     {
-        var connected = TryConnectToExistingRoboDkInstance();
+        _bufferedSocket = ConnectToRoboDK(RoboDKServerIpAddress, RoboDKServerPort);
 
-        if (connected)
+        if (_bufferedSocket == null)
         {
-            connected = VerifyConnection();
-            _bufferedSocket.ReceiveTimeout = DefaultSocketTimeoutMilliseconds;
+            return false;
         }
 
-        if (!connected)
+        if (VerifyConnection())
         {
-            _bufferedSocket.Dispose();
-            _bufferedSocket = null;
+            _bufferedSocket!.ReceiveTimeout = DefaultSocketTimeoutMilliseconds;
+            return true;
         }
 
-        return connected;
+        _bufferedSocket.Dispose();
+        _bufferedSocket = null;
+        return false;
     }
 
     /// <inheritdoc />
@@ -2625,25 +2626,6 @@ public class RoboDK : IRoboDK, IDisposable
         ReceiveTimeout = DefaultSocketTimeoutMilliseconds;
         check_status();
         return newItem;
-    }
-
-    private bool TryConnectToExistingRoboDkInstance()
-    {
-        _bufferedSocket = ConnectToRoboDK(RoboDKServerIpAddress, RoboDKServerPort);
-        return _bufferedSocket != null;
-    }
-
-    private static void ValidateCommandLineParameter(ProcessStartInfo processStartInfo)
-    {
-        // Sanity check
-        // If 'NEWINSTANCE' is a command line parameter, then it must be the first parameter
-        if (processStartInfo.Arguments.Contains("NEWINSTANCE"))
-        {
-            if (!processStartInfo.Arguments.StartsWith($"{CommandLineOption.SwitchDelimiter}NEWINSTANCE"))
-            {
-                throw new RdkException("The NEWINSTANCE Parameter must be the first command line parameter.");
-            }
-        }
     }
 
     private BufferedSocketAdapter ConnectToRoboDK(string host, int port)
