@@ -1263,11 +1263,6 @@ public class RoboDK : IRoboDK, IDisposable
     /// <inheritdoc />
     public IItem AddFile(string filename, IItem parent = null)
     {
-        if (!File.Exists(filename))
-        {
-            throw new FileNotFoundException(filename);
-        }
-
         return AddItem(filename, parent);
     }
 
