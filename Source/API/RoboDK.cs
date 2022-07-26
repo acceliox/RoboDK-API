@@ -487,7 +487,7 @@ public class RoboDK : IRoboDK, IDisposable
     }
 
     //Sends an item pointer
-    internal void send_item(IItem item)
+    internal void send_item(IItem? item)
     {
         var bytes = item == null
             ? _bitConverter.GetBytes((ulong)0)
@@ -2608,6 +2608,57 @@ public class RoboDK : IRoboDK, IDisposable
         return target;
     }
 
+    public IRoboDK FileSet(string localPath, string remotePath = "", bool loadFile = true, IItem? attachTo = null)
+    {
+        var bytes = File.ReadAllBytes(localPath);
+
+        check_connection();
+        send_line("FileRecvBin");
+        send_line(remotePath);
+        send_int(bytes.Length);
+        send_item(attachTo);
+
+        send_int(loadFile ? 1 : 0);
+        check_status();
+
+        _bufferedSocket.SendToSocket(bytes, bytes.Length);
+
+        _ = rec_line();
+        return CloneRoboDkConnection();
+    }
+
+    public IRoboDK FileSetBuffered(string localPath, string remotePath = "", bool loadFile = true, IItem? attachTo = null, int bufferSize = 1024)
+    {
+        using var file = File.OpenRead(localPath);
+
+        check_connection();
+        send_line("FileRecvBin");
+        send_line(remotePath);
+        send_int((int)file.Length);
+        send_item(attachTo);
+
+        send_int(loadFile ? 1 : 0);
+        check_status();
+
+        var buffer = new byte[bufferSize];
+        file.Seek(0, SeekOrigin.Begin);
+
+        while (true)
+        {
+            var bytesRead = file.Read(buffer, 0, bufferSize);
+            if (bytesRead == 0)
+            {
+                break;
+            }
+
+            _bufferedSocket.SendToSocket(buffer
+                .Take(bytesRead)
+                .ToArray(), bytesRead);
+        }
+
+        _ = rec_line();
+        return CloneRoboDkConnection();
+    }
 
     private IItem AddItem(string filename, IItem parent = null)
     {

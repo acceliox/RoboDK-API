@@ -926,4 +926,7 @@ public interface IRoboDK
     /// <param name="robotBase"></param>
     /// <param name="robot"></param>
     IItem AddTargetJ(IItem pgm, string targetName, double[] joints, IItem robotBase = null, IItem robot = null);
+
+    IRoboDK FileSet(string localPath, string remotePath = "", bool loadFile = true, IItem? attachTo = null);
+    IRoboDK FileSetBuffered(string localPath, string remotePath = "", bool loadFile = true, IItem? attachTo = null, int bufferSize = 1024);
 }

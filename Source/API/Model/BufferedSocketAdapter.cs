@@ -151,7 +151,7 @@ internal sealed class BufferedSocketAdapter : IDisposable
         }
     }
 
-    private void SendToSocket(byte[] data, int count)
+    public void SendToSocket(byte[] data, int count)
     {
         var n = _socket.Send(data, count, SocketFlags.None);
         Debug.Assert(n == count);
